@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silly goose behavior has been successfully avoided for 0 seconds</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 50px;
+      margin: 0;
+      min-height: 100vh;
+      background: url('https://images.openai.com/thumbnails/url/hpLO5Xicu1mUUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw5ySTZ1SwnwL6pyc852DPNMKQ43DAgwScrJNkr2CjAwKQgKTXHzDK808a7M9q0KrXJ2rPDIzg_Lc_RTKwYAtr8pCQ') center center no-repeat;
+      background-size: cover;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 40px;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 12px;
+    }
+    #timer {
+      font-size: 3rem;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+    #reset {
+      font-size: 1.5rem;
+      padding: 15px 30px;
+      background-color: rgba(231, 76, 60, 0.9);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    #reset:hover {
+      background-color: rgba(192, 57, 43, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <h1>Silly goose behavior has been successfully avoided for <span id="timer">0</span> seconds</h1>
+  <br />
+  <button id="reset">Reset</button>
+
+  <script>
+    let resetTimestamp = 0;
+    const timerDisplay = document.getElementById('timer');
+    const resetButton = document.getElementById('reset');
+
+    async function loadResetTime() {
+      try {
+        const res = await fetch('/api/reset-time');
+        const data = await res.json();
+        resetTimestamp = data.resetTime;
+        updateTimer();
+      } catch (err) {
+        timerDisplay.textContent = 'Error';
+        console.error('Failed to load reset time:', err);
+      }
+    }
+
+    function updateTimer() {
+      setInterval(() => {
+        const seconds = Math.floor((Date.now() - resetTimestamp) / 1000);
+        timerDisplay.textContent = seconds;
+        document.title = `Silly goose behavior has been successfully avoided for ${seconds} seconds`;
+      }, 1000);
+    }
+
+    resetButton.addEventListener('click', async () => {
+      try {
+        await fetch('/api/reset-time', { method: 'POST' });
+        await loadResetTime();
+      } catch (err) {
+        console.error('Failed to reset:', err);
+      }
+    });
+
+    loadResetTime();
+  </script>
+</body>
+</html>
